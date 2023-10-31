@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.1.2/dist/sweetalert2.all.min.js"></script>
+
+    <style>
+        body {
+            background: url('C:\Users\Minku Singh\OneDrive\Pictures\green-snapseed-background-683x1024.jpeg');
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #1E222D;
+        }
+        
+        form {
+            background: transparent;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 10px 10px 20px rgba(30, 34, 45, 0.1), -10px -10px 20px rgba(30, 34, 45, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 400px;
+            width: 100%;
+            perspective: 1000px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #FFFFFF; /* Change font color */
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            outline: none;
+            background: rgba(207, 103, 103, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            transform: translateZ(40px);
+            color: #000000; /* Change font color */
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            outline: none;
+            background: linear-gradient(to right, #6EE7B7, #3B82F6);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            transform: translateZ(40px);
+        }
+        
+        #qrimg {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            transform: translateZ(40px);
+        }
+        
+        #qrimg img {
+            max-width: 300px;
+            width: 100%;
+        }
+        
+        #download {
+            display: none;
+            padding: 10px 20px;
+            border: none;
+            outline: none;
+            background: linear-gradient(to right, #FBD38D, #ED8936);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            transform: translateZ(40px);
+        }
+        
+        #loading-message {
+            display: none;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+            animation: fadein 1s forwards;
+            color: #FFFFFF; /* Change font color */
+        }
+        
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <h1>QR Code Generator</h1>
+        <input type="text" id="input" class="input value" placeholder="Enter Text"/>
+        <button id="btn" onclick="generateQR()" class="input submit">GENERATE</button>
+        <div id="loading-message">Generating, please wait...</div>
+        <div id="qrimg">QR code will display here</div>
+        <a id="download" href="#" download="qr_code.png">Download QR</a>
+    </form>
+
+    <script>
+        var qrimg = document.getElementById("qrimg");
+        var downloadBtn = document.getElementById("download");
+        var loadingMessage = document.getElementById("loading-message");
+
+        async function generateQR() {
+            var text = document.getElementById("input").value;
+            if (text !== '') {
+                loadingMessage.style.display = "block";
+                try {
+                    var response = await fetch('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(text));
+                    if (response.ok) {
+                        var qrCodeImageSrc = URL.createObjectURL(await response.blob());
+                        qrimg.innerHTML = '<img src="' + qrCodeImageSrc + '">';
+                        downloadBtn.style.display = "block";
+                        downloadBtn.href = qrCodeImageSrc;
+                    } else {
+                        showAlert("Error generating QR");
+                    }
+                } catch (error) {
+                    showAlert("Fetching failed");
+                    console.log(error);
+                }
+                loadingMessage.style.display = "none";
+            } else {
+                showAlert("Enter valid text");
+            }
+        }
+
+        function showAlert(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: message
+            });
+        }
+    </script>
+
+</body>
+</html>
